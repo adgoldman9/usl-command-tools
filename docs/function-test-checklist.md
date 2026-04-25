@@ -142,6 +142,23 @@ Notes:
 
 Notes:
 
+## Google Sheets Sync Beta Test
+
+- [ ] Pass / [ ] Fail - Create or open the USL sync Google Sheet.
+- [ ] Pass / [ ] Fail - Add `apps-script/google-sheets-sync/Code.gs` to the bound Apps Script project.
+- [ ] Pass / [ ] Fail - Run `setupUSLSyncSheet` and approve permissions.
+- [ ] Pass / [ ] Fail - Deploy Apps Script as a web app.
+- [ ] Pass / [ ] Fail - Paste the Web App URL into Mobile Capture Inbox.
+- [ ] Pass / [ ] Fail - Save URL and confirm the local sync status updates.
+- [ ] Pass / [ ] Fail - Push local Mobile Capture records to Google Sheets.
+- [ ] Pass / [ ] Fail - Confirm records appear in the `Mobile_Capture` sheet.
+- [ ] Pass / [ ] Fail - Pull sheet records into a different browser or device.
+- [ ] Pass / [ ] Fail - Confirm pulled records merge into localStorage by `id`.
+- [ ] Pass / [ ] Fail - Confirm CSV export/import still works after sync.
+- [ ] Pass / [ ] Fail - Confirm no Apps Script Web App URL or private record data is committed to GitHub.
+
+Notes:
+
 ## Final Disposition
 
 - [ ] Pass / [ ] Fail - All critical workflows passed.

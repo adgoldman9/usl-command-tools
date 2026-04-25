@@ -11,6 +11,8 @@ The repo is designed for simple local-first tools that can be opened in a browse
 - `nsn-review-dashboard/` - NSN and NIIN review dashboards and decision-support utilities.
 - `supplier-outreach-tools/` - Supplier list cleanup, outreach tracking, and CSV utilities.
 - `usl-command-dashboard/` - Daily USL command dashboard, mobile capture, and status reporting.
+- `mobile-capture-inbox/` - Mobile-first capture inbox with CSV and optional Google Sheets sync.
+- `apps-script/` - Google Apps Script backend templates for optional shared sync.
 - `docs/` - Deployment notes, operating docs, and GitHub Pages instructions.
 
 ## Local Use

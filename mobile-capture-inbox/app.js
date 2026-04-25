@@ -1,4 +1,5 @@
 const STORAGE_KEY = "usl-mobile-capture.items.v1";
+const SYNC_CONFIG_KEY = "usl-mobile-capture.sync.v1";
 
 const fieldLabels = {
   captureType: "Capture type",
@@ -72,6 +73,11 @@ const elements = {
   typeFilter: document.querySelector("#type-filter"),
   statusFilter: document.querySelector("#status-filter"),
   laneFilter: document.querySelector("#lane-filter"),
+  syncEndpoint: document.querySelector("#sync-endpoint"),
+  saveSyncButton: document.querySelector("#save-sync-button"),
+  pullSyncButton: document.querySelector("#pull-sync-button"),
+  pushSyncButton: document.querySelector("#push-sync-button"),
+  syncStatus: document.querySelector("#sync-status"),
   summaryGrid: document.querySelector("#summary-grid"),
   resultHeading: document.querySelector("#result-heading"),
   cardList: document.querySelector("#card-list"),
@@ -103,12 +109,16 @@ function initialize() {
   elements.importButton.addEventListener("click", () => elements.fileInput.click());
   elements.fileInput.addEventListener("change", importCsv);
   elements.clearFiltersButton.addEventListener("click", clearFilters);
+  elements.saveSyncButton.addEventListener("click", saveSyncConfig);
+  elements.pullSyncButton.addEventListener("click", pullFromSheet);
+  elements.pushSyncButton.addEventListener("click", pushToSheet);
   elements.form.addEventListener("submit", saveItem);
 
   [elements.searchInput, elements.typeFilter, elements.statusFilter, elements.laneFilter].forEach((element) => {
     element.addEventListener("input", render);
   });
 
+  loadSyncConfig();
   render();
 }
 
@@ -130,6 +140,44 @@ function loadItems() {
 
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+
+function loadSyncConfig() {
+  const stored = localStorage.getItem(SYNC_CONFIG_KEY);
+  if (!stored) return;
+
+  try {
+    const config = JSON.parse(stored);
+    elements.syncEndpoint.value = config.endpoint || "";
+    setSyncStatus(config.endpoint ? "Sync URL saved locally in this browser." : "Sync is optional. LocalStorage and CSV still work without it.");
+  } catch (error) {
+    console.warn("Could not parse sync config.", error);
+  }
+}
+
+function saveSyncConfig() {
+  const endpoint = normalizeEndpoint(elements.syncEndpoint.value);
+  elements.syncEndpoint.value = endpoint;
+  localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify({ endpoint }));
+  setSyncStatus(endpoint ? "Sync URL saved. Ready to push or pull." : "Sync URL cleared.");
+}
+
+function normalizeEndpoint(value) {
+  return String(value || "").trim();
+}
+
+function getSyncEndpoint() {
+  const endpoint = normalizeEndpoint(elements.syncEndpoint.value);
+  if (!endpoint) {
+    setSyncStatus("Add an Apps Script Web App URL before syncing.", true);
+    return "";
+  }
+  return endpoint;
+}
+
+function setSyncStatus(message, isError = false) {
+  elements.syncStatus.textContent = message;
+  elements.syncStatus.style.color = isError ? "var(--danger)" : "var(--muted)";
 }
 
 function fillSelect(id, values) {
@@ -358,6 +406,104 @@ function exportCsv() {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+function pushToSheet() {
+  const endpoint = getSyncEndpoint();
+  if (!endpoint) return;
+
+  localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify({ endpoint }));
+  const iframeName = `usl-sync-frame-${Date.now()}`;
+  const iframe = document.createElement("iframe");
+  iframe.name = iframeName;
+  iframe.hidden = true;
+  document.body.append(iframe);
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = endpoint;
+  form.target = iframeName;
+  form.hidden = true;
+
+  const action = document.createElement("input");
+  action.name = "action";
+  action.value = "upsertMany";
+  form.append(action);
+
+  const payload = document.createElement("input");
+  payload.name = "payload";
+  payload.value = JSON.stringify(items);
+  form.append(payload);
+
+  document.body.append(form);
+  form.submit();
+  setSyncStatus(`Pushed ${items.length} local capture item${items.length === 1 ? "" : "s"} to Google Sheets.`);
+
+  setTimeout(() => {
+    form.remove();
+    iframe.remove();
+  }, 5000);
+}
+
+function pullFromSheet() {
+  const endpoint = getSyncEndpoint();
+  if (!endpoint) return;
+
+  localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify({ endpoint }));
+  const callbackName = `uslMobileCaptureSync_${Date.now()}`;
+  const separator = endpoint.includes("?") ? "&" : "?";
+  const script = document.createElement("script");
+
+  window[callbackName] = (response) => {
+    try {
+      if (!response || !response.ok || !Array.isArray(response.records)) {
+        throw new Error(response?.error || "Unexpected sync response.");
+      }
+
+      const incoming = response.records.map(sheetRecordToItem).filter(Boolean);
+      const merged = mergeItemsById(items, incoming);
+      items = merged;
+      persist();
+      render();
+      setSyncStatus(`Pulled ${incoming.length} sheet record${incoming.length === 1 ? "" : "s"} into local storage.`);
+    } catch (error) {
+      setSyncStatus(`Pull failed: ${error.message}`, true);
+    } finally {
+      delete window[callbackName];
+      script.remove();
+    }
+  };
+
+  script.onerror = () => {
+    delete window[callbackName];
+    script.remove();
+    setSyncStatus("Pull failed. Check the Apps Script URL and deployment access.", true);
+  };
+
+  script.src = `${endpoint}${separator}action=list&callback=${callbackName}`;
+  document.body.append(script);
+  setSyncStatus("Pulling records from Google Sheets...");
+}
+
+function sheetRecordToItem(record) {
+  if (!record || !record.id) return null;
+  const item = { id: String(record.id) };
+  fieldOrder.forEach((field) => {
+    item[field] = String(record[field] || "");
+  });
+  item.captureType = ensureOption(item.captureType, options.captureType, "CHATGPT TASK");
+  item.priority = ensureOption(item.priority, options.priority, "Medium");
+  item.targetLane = ensureOption(item.targetLane, options.targetLane, "Daily Command / Agenda");
+  item.status = ensureOption(item.status, options.status, "Active");
+  item.dateCaptured = item.dateCaptured || today();
+  return item;
+}
+
+function mergeItemsById(localItems, incomingItems) {
+  const map = new Map();
+  localItems.forEach((item) => map.set(item.id, item));
+  incomingItems.forEach((item) => map.set(item.id, item));
+  return Array.from(map.values()).sort(sortItems);
 }
 
 function toCsv(records) {

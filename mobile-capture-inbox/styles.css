@@ -150,6 +150,42 @@ h2 {
   box-shadow: var(--shadow);
 }
 
+.sync-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.sync-panel p {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.sync-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.sync-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sync-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -277,11 +313,11 @@ dd { margin: 0; }
 
 @media (max-width: 1180px) {
   .summary-grid, .card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .capture-panel { grid-template-columns: 1fr; }
+  .capture-panel, .sync-panel { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 780px) {
-  .app-header, .header-actions, .dialog-actions, .dialog-action-group, .surface-header, .card-actions { flex-direction: column; align-items: stretch; }
+  .app-header, .header-actions, .dialog-actions, .dialog-action-group, .surface-header, .card-actions, .sync-actions { flex-direction: column; align-items: stretch; }
   #storage-note { text-align: left; }
   .toolbar, .summary-grid, .card-list, .form-grid, .quick-form { grid-template-columns: 1fr; }
   .app-shell { padding-inline: 12px; }

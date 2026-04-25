@@ -66,6 +66,26 @@
       <button class="button subtle" id="clear-filters-button" type="button">Clear</button>
     </section>
 
+    <section class="sync-panel" aria-label="Google Sheets sync beta">
+      <div>
+        <p class="eyebrow">Google Sheets Sync Beta</p>
+        <h2>Shared phone-to-desktop bridge</h2>
+        <p>Paste your Apps Script Web App URL, then push local captures to the shared sheet or pull shared rows back into this browser.</p>
+      </div>
+      <div class="sync-controls">
+        <label class="wide">
+          Apps Script Web App URL
+          <input id="sync-endpoint" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+        </label>
+        <div class="sync-actions">
+          <button class="button" id="save-sync-button" type="button">Save URL</button>
+          <button class="button" id="pull-sync-button" type="button">Pull Sheet to Local</button>
+          <button class="button primary" id="push-sync-button" type="button">Push Local to Sheet</button>
+        </div>
+        <p class="sync-status" id="sync-status">Sync is optional. LocalStorage and CSV still work without it.</p>
+      </div>
+    </section>
+
     <section class="summary-grid" id="summary-grid" aria-label="Capture summary"></section>
 
     <section class="record-surface" aria-label="Capture inbox records">

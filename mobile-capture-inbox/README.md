@@ -12,6 +12,7 @@ Mobile-first inbox for capturing USL work from the field before it becomes scatt
 - Searches across title, description, source, lane, next action, and notes.
 - Exports CSV for backup or desktop handoff.
 - Imports CSV for manual phone-to-desktop sync.
+- Supports optional Google Sheets / Apps Script sync beta.
 - Saves records in browser localStorage.
 
 ## How To Open
@@ -32,6 +33,22 @@ Use this manual workflow first:
 4. Open the desktop browser version.
 5. Import CSV.
 6. Mark imported items as routed after they are moved into the right tracker or agenda.
+
+## Google Sheets Sync Beta
+
+For shared phone-to-desktop sync, deploy the Apps Script template at:
+
+```text
+apps-script/google-sheets-sync/Code.gs
+```
+
+Then paste the deployed Web App URL into the sync panel in this tool.
+
+The sync beta can:
+
+- Push all local capture items to Google Sheets.
+- Pull sheet rows back into local browser storage.
+- Keep localStorage as the offline working copy.
 
 ## Data Note
 
