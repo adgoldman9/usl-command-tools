@@ -77,6 +77,8 @@ const elements = {
   saveSyncButton: document.querySelector("#save-sync-button"),
   pullSyncButton: document.querySelector("#pull-sync-button"),
   pushSyncButton: document.querySelector("#push-sync-button"),
+  dedupeButton: document.querySelector("#dedupe-button"),
+  clearDemoDataButton: document.querySelector("#clear-demo-data-button"),
   syncStatus: document.querySelector("#sync-status"),
   summaryGrid: document.querySelector("#summary-grid"),
   resultHeading: document.querySelector("#result-heading"),
@@ -112,6 +114,8 @@ function initialize() {
   elements.saveSyncButton.addEventListener("click", saveSyncConfig);
   elements.pullSyncButton.addEventListener("click", pullFromSheet);
   elements.pushSyncButton.addEventListener("click", pushToSheet);
+  elements.dedupeButton.addEventListener("click", removeDuplicates);
+  elements.clearDemoDataButton.addEventListener("click", clearDemoData);
   elements.form.addEventListener("submit", saveItem);
 
   [elements.searchInput, elements.typeFilter, elements.statusFilter, elements.laneFilter].forEach((element) => {
@@ -462,10 +466,14 @@ function pullFromSheet() {
 
       const incoming = response.records.map(sheetRecordToItem).filter(Boolean);
       const merged = mergeItemsById(items, incoming);
-      items = merged;
+      const deduped = dedupeItems(merged);
+      items = deduped.items;
       persist();
       render();
-      setSyncStatus(`Pulled ${incoming.length} sheet record${incoming.length === 1 ? "" : "s"} into local storage.`);
+      const dedupeNote = deduped.removed
+        ? ` Removed ${deduped.removed} duplicate${deduped.removed === 1 ? "" : "s"}.`
+        : "";
+      setSyncStatus(`Pulled ${incoming.length} sheet record${incoming.length === 1 ? "" : "s"} into local storage.${dedupeNote}`);
     } catch (error) {
       setSyncStatus(`Pull failed: ${error.message}`, true);
     } finally {
@@ -534,9 +542,109 @@ async function importCsv(event) {
     return;
   }
   items = [...imported, ...items];
+  const deduped = dedupeItems(items);
+  items = deduped.items;
   persist();
   render();
-  alert(`Imported ${imported.length} capture item${imported.length === 1 ? "" : "s"}.`);
+  alert(`Imported ${imported.length} capture item${imported.length === 1 ? "" : "s"}.${deduped.removed ? ` Removed ${deduped.removed} duplicate${deduped.removed === 1 ? "" : "s"}.` : ""}`);
+}
+
+function removeDuplicates() {
+  const deduped = dedupeItems(items);
+  if (!deduped.removed) {
+    setSyncStatus("No duplicate capture items found.");
+    return;
+  }
+
+  if (!confirm(`Remove ${deduped.removed} duplicate capture item${deduped.removed === 1 ? "" : "s"} from this browser?`)) {
+    return;
+  }
+
+  items = deduped.items;
+  persist();
+  render();
+  setSyncStatus(`Removed ${deduped.removed} duplicate capture item${deduped.removed === 1 ? "" : "s"} from local storage.`);
+}
+
+function clearDemoData() {
+  const demoItems = items.filter(isDemoItem);
+  if (!demoItems.length) {
+    setSyncStatus("No demo/sample capture items found.");
+    return;
+  }
+
+  if (!confirm(`Clear ${demoItems.length} demo/sample capture item${demoItems.length === 1 ? "" : "s"} from this browser?`)) {
+    return;
+  }
+
+  items = items.filter((item) => !isDemoItem(item));
+  persist();
+  render();
+  setSyncStatus(`Cleared ${demoItems.length} demo/sample capture item${demoItems.length === 1 ? "" : "s"} from local storage.`);
+}
+
+function dedupeItems(records) {
+  const map = new Map();
+
+  records.forEach((item) => {
+    const key = duplicateKey(item);
+    const existing = map.get(key);
+    map.set(key, existing ? chooseBetterDuplicate(existing, item) : item);
+  });
+
+  return {
+    items: Array.from(map.values()).sort(sortItems),
+    removed: records.length - map.size
+  };
+}
+
+function duplicateKey(item) {
+  return [
+    item.captureType,
+    item.title,
+    item.description,
+    item.source,
+    normalizeDateKey(item.dateCaptured),
+    item.targetLane,
+    item.nextAction,
+    item.status
+  ].map(normalizeDuplicateValue).join("|");
+}
+
+function chooseBetterDuplicate(a, b) {
+  const aScore = duplicateScore(a);
+  const bScore = duplicateScore(b);
+  if (bScore !== aScore) return bScore > aScore ? b : a;
+  return String(b.id || "").localeCompare(String(a.id || "")) > 0 ? b : a;
+}
+
+function duplicateScore(item) {
+  const filledFields = fieldOrder.filter((field) => String(item[field] || "").trim()).length;
+  const realNotesBonus = isDemoItem(item) ? 0 : 3;
+  return filledFields + realNotesBonus;
+}
+
+function isDemoItem(item) {
+  const title = normalizeDuplicateValue(item.title);
+  const notes = normalizeDuplicateValue(item.notes);
+  return notes.includes("sample record only")
+    || notes.includes("replace with real waiting item or delete")
+    || title === "add follow up date filter to opportunity tracker"
+    || title === "waiting on external sustainment response";
+}
+
+function normalizeDuplicateValue(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function normalizeDateKey(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? text.slice(0, 10) : date.toISOString().slice(0, 10);
 }
 
 function rowToItem(headers, row) {

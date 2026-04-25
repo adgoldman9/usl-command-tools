@@ -13,6 +13,8 @@ Mobile-first inbox for capturing USL work from the field before it becomes scatt
 - Exports CSV for backup or desktop handoff.
 - Imports CSV for manual phone-to-desktop sync.
 - Supports optional Google Sheets / Apps Script sync beta.
+- Removes duplicate captures created by repeated pull/import cycles.
+- Clears the starter demo/sample records once real capture data exists.
 - Saves records in browser localStorage.
 
 ## How To Open
@@ -48,7 +50,11 @@ The sync beta can:
 
 - Push all local capture items to Google Sheets.
 - Pull sheet rows back into local browser storage.
+- Dedupe matching local and Sheet rows after pull.
 - Keep localStorage as the offline working copy.
+
+Use **Remove Duplicates** if repeated sync/import tests create duplicate cards.
+Use **Clear Demo Data** after confirming your real records are present.
 
 ## Data Note
 
