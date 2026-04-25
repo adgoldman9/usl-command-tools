@@ -3,16 +3,261 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>USL SAR / ESA / RPPOB System</title>
+  <title>USL SAR / ESA / RPPOB Tracker</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="placeholder">
-    <p class="eyebrow">USL Command Tools</p>
-    <h1>SAR / ESA / RPPOB System</h1>
-    <p>Planned module for ESA concurrence, SAR package preparation, CSI review, RPPOB status, and quoteability tracking.</p>
-    <a href="../">Back to launch page</a>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">USL Command Tools</p>
+      <h1>SAR / ESA Tracker</h1>
+      <p class="lede">Track NSN parts through ESA concurrence, SAR package preparation, CSI screening, RPPOB status, and quoteability review.</p>
+    </div>
+    <div class="header-actions">
+      <a class="button" href="../">Launch Page</a>
+      <button class="button primary" id="new-record-button" type="button">New Part Record</button>
+      <button class="button" id="export-csv-button" type="button">Export CSV</button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="mission-panel">
+      <div>
+        <p class="eyebrow">Approval Flow</p>
+        <h2>Keep controlled sustainment parts from drifting between research, ESA, SAR, supplier review, and quoteability decisions.</h2>
+      </div>
+      <div class="mission-steps">
+        <span>Screen</span>
+        <span>ESA</span>
+        <span>SAR</span>
+        <span>Review</span>
+        <span>Quoteability</span>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="SAR filters">
+      <label class="search-field">
+        Search
+        <input id="search-input" type="search" placeholder="NSN, NIIN, part, supplier, next action">
+      </label>
+      <label>
+        ESA status
+        <select id="esa-filter"></select>
+      </label>
+      <label>
+        SAR status
+        <select id="sar-filter"></select>
+      </label>
+      <label>
+        CSI status
+        <select id="csi-filter"></select>
+      </label>
+      <button class="button subtle" id="clear-filters-button" type="button">Clear</button>
+    </section>
+
+    <section class="summary-grid" id="summary-grid" aria-label="SAR summary"></section>
+
+    <section class="record-surface" aria-label="SAR records">
+      <div class="surface-header">
+        <div>
+          <p class="eyebrow">Control Board</p>
+          <h2 id="result-heading">Part Records</h2>
+        </div>
+        <p id="storage-note">Records are stored in this browser only.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ESA</th>
+              <th>SAR</th>
+              <th>CSI</th>
+              <th>NSN / NIIN</th>
+              <th>Part</th>
+              <th>Quoteability</th>
+              <th>Next Action</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="records-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="card-list" id="records-card-list"></div>
+      <p class="empty-state" id="empty-state" hidden>No SAR / ESA records match the current filters.</p>
+    </section>
   </main>
+
+  <dialog class="record-dialog" id="record-dialog">
+    <form id="record-form" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">SAR / ESA Record</p>
+          <h2 id="dialog-title">New Part Record</h2>
+        </div>
+        <button class="icon-button" id="close-dialog-button" type="button" aria-label="Close dialog">X</button>
+      </div>
+
+      <input id="id" name="id" type="hidden">
+
+      <div class="form-grid">
+        <label>
+          Record ID
+          <input id="recordId" name="recordId" placeholder="USL-SAR-001">
+        </label>
+        <label>
+          NSN
+          <input id="nsn" name="nsn" placeholder="0000-00-000-0000">
+        </label>
+        <label>
+          NIIN
+          <input id="niin" name="niin" placeholder="Last 9 digits">
+        </label>
+        <label>
+          FSC
+          <input id="fsc" name="fsc" placeholder="4-digit FSC">
+        </label>
+        <label>
+          Part type
+          <input id="partType" name="partType" placeholder="Bushing, fitting, bracket">
+        </label>
+        <label>
+          Part name
+          <input id="partName" name="partName" required>
+        </label>
+        <label>
+          AMC
+          <input id="amc" name="amc" maxlength="2">
+        </label>
+        <label>
+          AMSC
+          <input id="amsc" name="amsc" maxlength="2">
+        </label>
+        <label>
+          CSI status
+          <select id="csiStatus" name="csiStatus"></select>
+        </label>
+        <label>
+          RPPOB status
+          <select id="rppobStatus" name="rppobStatus"></select>
+        </label>
+        <label>
+          ESA status
+          <select id="esaStatus" name="esaStatus"></select>
+        </label>
+        <label>
+          ESA submission date
+          <input id="esaSubmissionDate" name="esaSubmissionDate" type="date">
+        </label>
+        <label>
+          SAR category
+          <select id="sarCategory" name="sarCategory"></select>
+        </label>
+        <label>
+          SAR status
+          <select id="sarStatus" name="sarStatus"></select>
+        </label>
+        <label>
+          Technical data source
+          <select id="technicalDataSource" name="technicalDataSource"></select>
+        </label>
+        <label>
+          cFolders status
+          <select id="cFoldersStatus" name="cFoldersStatus"></select>
+        </label>
+        <label>
+          NSNLookup status
+          <select id="nsnLookupStatus" name="nsnLookupStatus"></select>
+        </label>
+        <label>
+          Drawing status
+          <select id="drawingStatus" name="drawingStatus"></select>
+        </label>
+        <label>
+          Manufacturing director review
+          <select id="manufacturingReview" name="manufacturingReview"></select>
+        </label>
+        <label>
+          Engineering director review
+          <select id="engineeringReview" name="engineeringReview"></select>
+        </label>
+        <label>
+          Supplier candidate
+          <input id="supplierCandidate" name="supplierCandidate" placeholder="Supplier name or TBD">
+        </label>
+        <label>
+          Quoteability status
+          <select id="quoteabilityStatus" name="quoteabilityStatus"></select>
+        </label>
+        <label>
+          Follow-up cadence
+          <select id="followUpCadence" name="followUpCadence"></select>
+        </label>
+        <label class="full-span">
+          Next action
+          <input id="nextAction" name="nextAction" placeholder="Submit ESA request, draft SAR, request drawing, schedule engineering review">
+        </label>
+        <label class="full-span">
+          Notes
+          <textarea id="notes" name="notes" rows="4" placeholder="Capture blockers, evidence, missing data, approvals, or handoff notes."></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="button danger" id="delete-record-button" type="button">Delete</button>
+        <div class="dialog-action-group">
+          <button class="button" id="print-record-button" type="button">Print Summary</button>
+          <button class="button" id="cancel-button" type="button">Cancel</button>
+          <button class="button primary" type="submit">Save Record</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <section class="print-sheet" id="print-sheet" aria-label="Printable record summary"></section>
+
+  <template id="summary-template">
+    <article class="summary-item">
+      <span></span>
+      <strong></strong>
+      <small></small>
+    </article>
+  </template>
+
+  <template id="card-template">
+    <article class="record-card">
+      <div class="record-card-top">
+        <span class="esa-pill"></span>
+        <span class="sar-pill"></span>
+      </div>
+      <h3></h3>
+      <p class="record-meta"></p>
+      <dl>
+        <div>
+          <dt>CSI</dt>
+          <dd class="card-csi"></dd>
+        </div>
+        <div>
+          <dt>NSN</dt>
+          <dd class="card-nsn"></dd>
+        </div>
+        <div>
+          <dt>Quote</dt>
+          <dd class="card-quote"></dd>
+        </div>
+        <div>
+          <dt>Next</dt>
+          <dd class="card-next"></dd>
+        </div>
+      </dl>
+      <div class="card-actions">
+        <button class="button small edit-record-button" type="button">Edit</button>
+        <button class="button small print-card-button" type="button">Print</button>
+      </div>
+    </article>
+  </template>
+
   <script src="./app.js"></script>
 </body>
 </html>
