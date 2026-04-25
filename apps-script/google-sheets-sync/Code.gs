@@ -1,5 +1,10 @@
 const MOBILE_CAPTURE_SHEET = 'Mobile_Capture';
 
+// Leave blank when this script is bound from the Sheet with Extensions -> Apps Script.
+// For a standalone script.google.com project, set this with configureUSLSyncSpreadsheet()
+// or paste the spreadsheet ID here before deploying.
+const USL_SYNC_SPREADSHEET_ID = '';
+
 const MOBILE_CAPTURE_HEADERS = [
   'id',
   'captureType',
@@ -53,8 +58,17 @@ function setupUSLSyncSheet() {
   ensureSheet_(MOBILE_CAPTURE_SHEET, MOBILE_CAPTURE_HEADERS);
 }
 
+function configureUSLSyncSpreadsheet() {
+  const spreadsheetId = 'PASTE_SPREADSHEET_ID_HERE';
+  if (spreadsheetId === 'PASTE_SPREADSHEET_ID_HERE') {
+    throw new Error('Paste your Google Sheet ID into configureUSLSyncSpreadsheet before running it.');
+  }
+
+  PropertiesService.getScriptProperties().setProperty('USL_SYNC_SPREADSHEET_ID', spreadsheetId);
+}
+
 function ensureSheet_(sheetName, headers) {
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const spreadsheet = getSyncSpreadsheet_();
   let sheet = spreadsheet.getSheetByName(sheetName);
   if (!sheet) {
     sheet = spreadsheet.insertSheet(sheetName);
@@ -68,6 +82,21 @@ function ensureSheet_(sheetName, headers) {
   }
 
   return sheet;
+}
+
+function getSyncSpreadsheet_() {
+  const propertyId = PropertiesService.getScriptProperties().getProperty('USL_SYNC_SPREADSHEET_ID') || '';
+  const configuredId = String(USL_SYNC_SPREADSHEET_ID || propertyId).trim();
+  if (configuredId) {
+    return SpreadsheetApp.openById(configuredId);
+  }
+
+  const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (activeSpreadsheet) {
+    return activeSpreadsheet;
+  }
+
+  throw new Error('No Google Sheet is connected. Bind this script from the Sheet, or configure USL_SYNC_SPREADSHEET_ID.');
 }
 
 function readRecords_(sheetName, headers) {

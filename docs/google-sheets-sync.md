@@ -25,17 +25,20 @@ Mobile Capture Inbox is the field command console. It is the best first sync tar
 ## Setup Summary
 
 1. Create a Google Sheet.
-2. Add the Apps Script file from:
+2. Preferred setup: open **Extensions -> Apps Script** from inside that Sheet.
+3. Alternate setup: create a standalone Apps Script project, then configure the target Sheet ID in the script.
+4. Add the Apps Script file from:
 
 ```text
 apps-script/google-sheets-sync/Code.gs
 ```
 
-3. Run `setupUSLSyncSheet`.
-4. Deploy the Apps Script as a web app.
-5. Copy the web app URL.
-6. Paste it into the Mobile Capture Inbox sync panel.
-7. Use **Push Local to Sheet** and **Pull Sheet to Local**.
+5. If using a standalone script, paste the Sheet ID into `USL_SYNC_SPREADSHEET_ID` or into `configureUSLSyncSpreadsheet()`, then run `configureUSLSyncSpreadsheet`.
+6. Run `setupUSLSyncSheet`.
+7. Deploy the Apps Script as a web app.
+8. Copy the web app URL.
+9. Paste it into the Mobile Capture Inbox sync panel.
+10. Use **Push Local to Sheet** and **Pull Sheet to Local**.
 
 ## Important Security Notes
 
