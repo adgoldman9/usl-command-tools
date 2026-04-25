@@ -1,10 +1,26 @@
-# SAR / ESA / RPPOB System
+# SAR / ESA / RPPOB Tracker
 
-Purpose: browser-based tools for tracking NSN parts through ESA concurrence, SAR package preparation, RPPOB status, CSI review, quoteability, and technical-data readiness.
+Browser-based workflow tracker for NSN parts moving through ESA concurrence, SAR package preparation, RPPOB status, CSI screening, technical-data review, and quoteability decisions.
 
-Planned files:
-- `index.html`
-- `styles.css`
-- `app.js`
+## What It Does
 
-Initial build goal: create a local tracker that can add, edit, delete, filter, print summaries, export CSV, and save records in browser localStorage.
+- Adds, edits, and deletes SAR / ESA part records.
+- Tracks NSN, NIIN, FSC, part type, part name, AMC/AMSC, CSI status, RPPOB status, ESA status, ESA submission date, SAR category, SAR status, technical-data source, cFolders status, NSNLookup status, drawing status, engineering review, manufacturing review, supplier candidate, quoteability status, next action, follow-up cadence, and notes.
+- Filters by ESA status, SAR status, and CSI status.
+- Searches by record ID, NSN, NIIN, part, supplier, quoteability, next action, and notes.
+- Exports all records to CSV.
+- Generates a printable record summary.
+- Saves records in browser localStorage.
+- Shows desktop table view and mobile card view.
+
+## How To Open
+
+Open `index.html` directly in a browser, or use the GitHub Pages route:
+
+```text
+https://adgoldman9.github.io/usl-command-tools/sar-system/
+```
+
+## Data Note
+
+This is a static browser tool. Records are stored only in the current browser localStorage unless exported to CSV. Do not put private USL data into public sample files or the GitHub repository.
