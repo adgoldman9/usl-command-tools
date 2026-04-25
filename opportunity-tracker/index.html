@@ -7,12 +7,242 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="placeholder">
-    <p class="eyebrow">USL Command Tools</p>
-    <h1>Opportunity Tracker</h1>
-    <p>Planned module for SAM.gov, DIBBS, LRAF, NSN, and defense hardware opportunity review.</p>
-    <a href="../">Back to launch page</a>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">USL Command Tools</p>
+      <h1>Opportunity Tracker</h1>
+      <p class="lede">Review SAM.gov, DIBBS, LRAF, NSN, and manual defense hardware leads from one fast local browser tool.</p>
+    </div>
+    <div class="header-actions">
+      <a class="button" href="../">Launch Page</a>
+      <button class="button primary" id="new-record-button" type="button">New Opportunity</button>
+      <button class="button" id="export-csv-button" type="button">Export CSV</button>
+      <button class="button" id="import-csv-button" type="button">Import CSV</button>
+      <input id="csv-file-input" type="file" accept=".csv,text/csv" hidden>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="mission-panel" aria-label="Opportunity review mission">
+      <div>
+        <p class="eyebrow">Review Flow</p>
+        <h2>Turn scattered leads into pursue, hold, skip, or parked decisions.</h2>
+      </div>
+      <div class="mission-steps" aria-label="Opportunity workflow">
+        <span>Capture</span>
+        <span>Screen NSN</span>
+        <span>Check TDP</span>
+        <span>Find Supplier Path</span>
+        <span>Decide</span>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="Opportunity filters">
+      <label class="search-field">
+        Search
+        <input id="search-input" type="search" placeholder="NSN, NIIN, notice, part, agency, buyer">
+      </label>
+      <label>
+        Decision
+        <select id="decision-filter"></select>
+      </label>
+      <label>
+        Priority
+        <select id="priority-filter"></select>
+      </label>
+      <label>
+        Source
+        <select id="source-filter"></select>
+      </label>
+      <button class="button subtle" id="clear-filters-button" type="button">Clear</button>
+    </section>
+
+    <section class="summary-grid" id="summary-grid" aria-label="Opportunity summary"></section>
+
+    <section class="record-surface" aria-label="Opportunity records">
+      <div class="surface-header">
+        <div>
+          <p class="eyebrow">Active Board</p>
+          <h2 id="result-heading">Opportunity Records</h2>
+        </div>
+        <p id="storage-note">Records are stored in this browser only.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Decision</th>
+              <th>Priority</th>
+              <th>NSN / NIIN</th>
+              <th>Part</th>
+              <th>Agency</th>
+              <th>Due</th>
+              <th>TDP</th>
+              <th>Next Action</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="records-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="card-list" id="records-card-list"></div>
+      <p class="empty-state" id="empty-state" hidden>No opportunities match the current filters.</p>
+    </section>
   </main>
+
+  <dialog class="record-dialog" id="record-dialog">
+    <form id="record-form" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Opportunity Record</p>
+          <h2 id="dialog-title">New Opportunity</h2>
+        </div>
+        <button class="icon-button" id="close-dialog-button" type="button" aria-label="Close dialog">X</button>
+      </div>
+
+      <input id="id" name="id" type="hidden">
+
+      <div class="form-grid">
+        <label>
+          Opportunity ID
+          <input id="opportunityId" name="opportunityId" placeholder="USL-OPP-001">
+        </label>
+        <label>
+          Source
+          <select id="source" name="source" required></select>
+        </label>
+        <label>
+          Notice ID
+          <input id="noticeId" name="noticeId" placeholder="SAM notice, DIBBS ref, or manual ID">
+        </label>
+        <label>
+          Solicitation number
+          <input id="solicitationNumber" name="solicitationNumber">
+        </label>
+        <label>
+          NSN
+          <input id="nsn" name="nsn" placeholder="0000-00-000-0000">
+        </label>
+        <label>
+          NIIN
+          <input id="niin" name="niin" placeholder="Last 9 digits">
+        </label>
+        <label>
+          FSC
+          <input id="fsc" name="fsc" placeholder="4-digit FSC">
+        </label>
+        <label>
+          Part name
+          <input id="partName" name="partName" required>
+        </label>
+        <label>
+          Agency
+          <input id="agency" name="agency" placeholder="DLA, USAF, Navy, Army">
+        </label>
+        <label>
+          Buyer / Contracting Officer
+          <input id="buyer" name="buyer">
+        </label>
+        <label>
+          Due date
+          <input id="dueDate" name="dueDate" type="date">
+        </label>
+        <label>
+          Follow-up date
+          <input id="followUpDate" name="followUpDate" type="date">
+        </label>
+        <label>
+          AMC
+          <input id="amc" name="amc" maxlength="2">
+        </label>
+        <label>
+          AMSC
+          <input id="amsc" name="amsc" maxlength="2">
+        </label>
+        <label>
+          CSI status
+          <select id="csiStatus" name="csiStatus"></select>
+        </label>
+        <label>
+          Technical data source
+          <select id="technicalDataSource" name="technicalDataSource"></select>
+        </label>
+        <label>
+          TDP status
+          <select id="tdpStatus" name="tdpStatus"></select>
+        </label>
+        <label>
+          Supplier status
+          <select id="supplierStatus" name="supplierStatus"></select>
+        </label>
+        <label>
+          Decision
+          <select id="decision" name="decision" required></select>
+        </label>
+        <label>
+          Priority
+          <select id="priority" name="priority" required></select>
+        </label>
+        <label class="full-span">
+          Next action
+          <input id="nextAction" name="nextAction" placeholder="Review TDP, request drawing, contact supplier, draft no-bid note">
+        </label>
+        <label class="full-span">
+          Notes
+          <textarea id="notes" name="notes" rows="4" placeholder="Capture risk, quote blockers, customer context, or sourcing notes."></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="button danger" id="delete-record-button" type="button">Delete</button>
+        <div class="dialog-action-group">
+          <button class="button" id="cancel-button" type="button">Cancel</button>
+          <button class="button primary" type="submit">Save Opportunity</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="summary-template">
+    <article class="summary-item">
+      <span></span>
+      <strong></strong>
+      <small></small>
+    </article>
+  </template>
+
+  <template id="card-template">
+    <article class="record-card">
+      <div class="record-card-top">
+        <span class="decision-pill"></span>
+        <span class="priority-pill"></span>
+      </div>
+      <h3></h3>
+      <p class="record-meta"></p>
+      <dl>
+        <div>
+          <dt>NSN</dt>
+          <dd class="card-nsn"></dd>
+        </div>
+        <div>
+          <dt>Due</dt>
+          <dd class="card-due"></dd>
+        </div>
+        <div>
+          <dt>TDP</dt>
+          <dd class="card-tdp"></dd>
+        </div>
+        <div>
+          <dt>Next</dt>
+          <dd class="card-next"></dd>
+        </div>
+      </dl>
+      <button class="button small edit-record-button" type="button">Edit</button>
+    </article>
+  </template>
+
   <script src="./app.js"></script>
 </body>
 </html>
