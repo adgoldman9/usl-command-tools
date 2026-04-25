@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USL Command Dashboard</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">USL Command Tools</p>
+      <h1>Command Dashboard</h1>
+      <p class="lede">Track daily lanes, next actions, follow-ups, and Codex build work from one local browser tool.</p>
+    </div>
+    <div class="header-actions">
+      <button class="button primary" id="new-task-button" type="button">New Task</button>
+      <button class="button" id="export-csv-button" type="button">Export CSV</button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="toolbar" aria-label="Dashboard filters">
+      <label>
+        Lane
+        <select id="lane-filter"></select>
+      </label>
+      <label>
+        Status
+        <select id="status-filter"></select>
+      </label>
+      <label class="search-field">
+        Search
+        <input id="search-input" type="search" placeholder="Title, owner, next action, notes">
+      </label>
+      <button class="button subtle" id="clear-filters-button" type="button">Clear</button>
+    </section>
+
+    <section class="summary-grid" id="summary-grid" aria-label="Dashboard summary"></section>
+
+    <section class="board" id="lane-board" aria-label="USL work lanes"></section>
+  </main>
+
+  <dialog class="task-dialog" id="task-dialog">
+    <form id="task-form" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Task Record</p>
+          <h2 id="dialog-title">New Task</h2>
+        </div>
+        <button class="icon-button" id="close-dialog-button" type="button" aria-label="Close dialog">X</button>
+      </div>
+
+      <input id="task-id" type="hidden">
+
+      <div class="form-grid">
+        <label>
+          Title
+          <input id="title" name="title" required>
+        </label>
+        <label>
+          Lane
+          <select id="lane" name="lane" required></select>
+        </label>
+        <label>
+          Status tag
+          <select id="status" name="status" required></select>
+        </label>
+        <label>
+          Priority
+          <select id="priority" name="priority" required>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </label>
+        <label>
+          Owner / responsible party
+          <input id="owner" name="owner" placeholder="Andrew, Codex, supplier, buyer">
+        </label>
+        <label>
+          Due date
+          <input id="dueDate" name="dueDate" type="date">
+        </label>
+        <label class="full-span">
+          Current status
+          <input id="currentStatus" name="currentStatus" placeholder="Active review, waiting on reply, parked until data arrives">
+        </label>
+        <label class="full-span">
+          Next action
+          <input id="nextAction" name="nextAction" placeholder="Send follow-up, review NSN, draft Codex packet">
+        </label>
+        <label class="full-span">
+          Notes
+          <textarea id="notes" name="notes" rows="4" placeholder="Context, links, blockers, or handoff notes"></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="button danger" id="delete-task-button" type="button">Delete</button>
+        <div class="dialog-action-group">
+          <button class="button" id="cancel-button" type="button">Cancel</button>
+          <button class="button primary" type="submit">Save Task</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="task-card-template">
+    <article class="task-card">
+      <div class="task-card-top">
+        <span class="status-pill"></span>
+        <span class="priority-pill"></span>
+      </div>
+      <h3></h3>
+      <p class="current-status"></p>
+      <dl>
+        <div>
+          <dt>Next</dt>
+          <dd class="next-action"></dd>
+        </div>
+        <div>
+          <dt>Owner</dt>
+          <dd class="owner"></dd>
+        </div>
+        <div>
+          <dt>Due</dt>
+          <dd class="due-date"></dd>
+        </div>
+      </dl>
+      <button class="button small edit-task-button" type="button">Edit</button>
+    </article>
+  </template>
+
+  <script src="./app.js"></script>
+</body>
+</html>
