@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USL Mobile Capture Inbox</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">USL Command Tools</p>
+      <h1>Mobile Capture Inbox</h1>
+      <p class="lede">Capture field notes, screenshots, supplier leads, NSNs, follow-ups, and Codex ideas before they scatter.</p>
+    </div>
+    <div class="header-actions">
+      <a class="button" href="../">Launch Page</a>
+      <button class="button primary" id="quick-add-button" type="button">Quick Add</button>
+      <button class="button" id="export-csv-button" type="button">Export CSV</button>
+      <button class="button" id="import-csv-button" type="button">Import CSV</button>
+      <input id="csv-file-input" type="file" accept=".csv,text/csv" hidden>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="capture-panel" aria-label="Quick capture">
+      <div>
+        <p class="eyebrow">Field Console</p>
+        <h2>Drop the thought here. Route it later.</h2>
+        <p>Use this from mobile for anything USL needs to remember: opportunity leads, waiting items, file work, supplier notes, or Codex build ideas.</p>
+      </div>
+      <form id="quick-capture-form" class="quick-form">
+        <label>
+          Capture type
+          <select id="quick-type" name="captureType"></select>
+        </label>
+        <label class="wide">
+          Title
+          <input id="quick-title" name="title" placeholder="Short useful label" required>
+        </label>
+        <label class="wide">
+          Description
+          <textarea id="quick-description" name="description" rows="3" placeholder="Paste mobile note, NSN, screenshot context, buyer note, or task idea."></textarea>
+        </label>
+        <button class="button primary wide" type="submit">Capture Item</button>
+      </form>
+    </section>
+
+    <section class="toolbar" aria-label="Inbox filters">
+      <label class="search-field">
+        Search
+        <input id="search-input" type="search" placeholder="Title, source, notes, next action">
+      </label>
+      <label>
+        Type
+        <select id="type-filter"></select>
+      </label>
+      <label>
+        Status
+        <select id="status-filter"></select>
+      </label>
+      <label>
+        Lane
+        <select id="lane-filter"></select>
+      </label>
+      <button class="button subtle" id="clear-filters-button" type="button">Clear</button>
+    </section>
+
+    <section class="summary-grid" id="summary-grid" aria-label="Capture summary"></section>
+
+    <section class="record-surface" aria-label="Capture inbox records">
+      <div class="surface-header">
+        <div>
+          <p class="eyebrow">Routing Board</p>
+          <h2 id="result-heading">Capture Items</h2>
+        </div>
+        <p id="storage-note">Records are stored in this browser only. Export CSV to move between phone and desktop.</p>
+      </div>
+      <div class="card-list" id="card-list"></div>
+      <p class="empty-state" id="empty-state" hidden>No capture items match the current filters.</p>
+    </section>
+  </main>
+
+  <dialog class="record-dialog" id="record-dialog">
+    <form id="record-form" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Capture Item</p>
+          <h2 id="dialog-title">Edit Capture</h2>
+        </div>
+        <button class="icon-button" id="close-dialog-button" type="button" aria-label="Close dialog">X</button>
+      </div>
+
+      <input id="id" name="id" type="hidden">
+
+      <div class="form-grid">
+        <label>
+          Capture type
+          <select id="captureType" name="captureType"></select>
+        </label>
+        <label>
+          Priority
+          <select id="priority" name="priority"></select>
+        </label>
+        <label>
+          Status
+          <select id="status" name="status"></select>
+        </label>
+        <label>
+          Target lane
+          <select id="targetLane" name="targetLane"></select>
+        </label>
+        <label>
+          Date captured
+          <input id="dateCaptured" name="dateCaptured" type="date">
+        </label>
+        <label>
+          Source
+          <input id="source" name="source" placeholder="Mobile, email, SAM.gov, supplier, screenshot">
+        </label>
+        <label class="full-span">
+          Title
+          <input id="title" name="title" required>
+        </label>
+        <label class="full-span">
+          Description
+          <textarea id="description" name="description" rows="4"></textarea>
+        </label>
+        <label class="full-span">
+          Next action
+          <input id="nextAction" name="nextAction" placeholder="Route to dashboard, create Codex packet, reply, wait, review NSN">
+        </label>
+        <label class="full-span">
+          Notes
+          <textarea id="notes" name="notes" rows="3"></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="button danger" id="delete-record-button" type="button">Delete</button>
+        <div class="dialog-action-group">
+          <button class="button" id="mark-routed-button" type="button">Mark Routed</button>
+          <button class="button" id="cancel-button" type="button">Cancel</button>
+          <button class="button primary" type="submit">Save Item</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="summary-template">
+    <article class="summary-item">
+      <span></span>
+      <strong></strong>
+      <small></small>
+    </article>
+  </template>
+
+  <template id="card-template">
+    <article class="capture-card">
+      <div class="capture-card-top">
+        <span class="type-pill"></span>
+        <span class="status-pill"></span>
+      </div>
+      <h3></h3>
+      <p class="description"></p>
+      <dl>
+        <div><dt>Lane</dt><dd class="card-lane"></dd></div>
+        <div><dt>Next</dt><dd class="card-next"></dd></div>
+        <div><dt>Source</dt><dd class="card-source"></dd></div>
+        <div><dt>Date</dt><dd class="card-date"></dd></div>
+      </dl>
+      <div class="card-actions">
+        <button class="button small edit-button" type="button">Edit</button>
+        <button class="button small route-button" type="button">Mark Routed</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="./app.js"></script>
+</body>
+</html>
