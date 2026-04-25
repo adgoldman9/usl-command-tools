@@ -22,7 +22,7 @@ This repo uses:
 - `index.html` inside each tool folder.
 - `.nojekyll` at the repo root.
 
-## Enable Pages
+## Enable Pages From Branch
 
 1. Open the GitHub repo.
 2. Go to `Settings`.
@@ -37,6 +37,8 @@ The launch URL should be:
 `https://adgoldman9.github.io/usl-command-tools/`
 
 GitHub Pages deployment can take several minutes after pushing changes.
+
+This repo does not need a custom GitHub Actions Pages workflow. The static launch page and tool folders can be served directly from the `main` branch root.
 
 ## Test URLs
 
