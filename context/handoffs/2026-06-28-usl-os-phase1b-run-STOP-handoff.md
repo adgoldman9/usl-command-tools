@@ -3,6 +3,8 @@
 - **Date/time:** 2026-06-28 17:20 local
 - **Platform used:** Claude Code / Cowork — **Linux cloud container (NOT Andrew's Windows machine)**
 - **Repo / path:** `usl-command-tools` @ `claude/saved-memory-sync-access-kukbtk`
+- **Windows repo path (actual):** `C:\Users\motor\OneDrive\Desktop\USL_Command_Center\07_Codex_Builds\usl-command-tools` (the repo working copy lives on the Desktop, NOT under the USL OS root).
+- **USL OS canonical root (script `-UslOsRoot` target):** `C:\Users\motor\OneDrive\Documents\USL_AI_Operating_System` — independent of the repo location; Phase 1B outputs are written here, not in the repo.
 - **Task:** Execute USL OS Phase 1B cross-source inventory overlay locally on Windows and produce an executive summary.
 - **Outcome:** **STOPPED before execution.** The task's stop condition was met: "If not running on Andrew's Windows machine with access to `C:\Users\motor`, stop and create a handoff instead of pretending the run completed."
 - **Environment evidence:**
@@ -14,11 +16,15 @@
 - **What is ready:** The Phase 1B tool and docs are already committed and pushed on this branch — `tools/usl-phase1b-cross-source-overlay.ps1` and `docs/usl-os-phase1b-overlay.md`. The run just has to happen on Windows.
 - **Next action (on Andrew's Windows machine):**
 
-      cd "C:\Users\motor\OneDrive\Documents\USL_AI_Operating_System\usl-command-tools"
+      cd "C:\Users\motor\OneDrive\Desktop\USL_Command_Center\07_Codex_Builds\usl-command-tools"
       git status --short
       git branch --show-current
       git pull --ff-only
       powershell -ExecutionPolicy Bypass -File tools\usl-phase1b-cross-source-overlay.ps1
+
+  The script still writes Phase 1B outputs under the USL OS root
+  (`C:\Users\motor\OneDrive\Documents\USL_AI_Operating_System`) via its `-UslOsRoot`
+  default, regardless of the repo's Desktop location.
 
   Then review:
   - ...\Phase_1B_Cross_Source_Inventory\cross_source_source_map.csv
