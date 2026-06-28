@@ -134,6 +134,15 @@ $driveStatus = if ($driveLocal) { "LOCAL_SYNC_PRESENT" } else { "PENDING_SOURCE_
 
 $cadPresent = Test-Path -LiteralPath $CadGeneratorRoot
 
+# Windows PowerShell 5.1 compatibility: precompute conditional values. Inline
+# if-expressions inside a hashtable literal ( @{ key=(if(){}else{}) } ) are not
+# valid in 5.1, so the four conditional values are computed here as statements and
+# referenced by variable below. Behavior is identical.
+$desktopStatus   = if (Test-Path -LiteralPath (Join-Path $env:USERPROFILE "OneDrive\Desktop")) { "PRESENT" } else { "REVIEW_REQUIRED" }
+$documentsStatus = if (Test-Path -LiteralPath (Join-Path $env:USERPROFILE "Documents")) { "PRESENT" } else { "REVIEW_REQUIRED" }
+$gdrivePathValue = if ($driveLocalPath) { $driveLocalPath } else { "UNKNOWN" }
+$cadStatus       = if ($cadPresent) { "PRESENT_INDEX_ONLY" } else { "REVIEW_REQUIRED" }
+
 # ---------------------------------------------------------------------------
 # Source map (one row per SOURCE — sources are not re-inventoried here)
 # ---------------------------------------------------------------------------
@@ -141,13 +150,13 @@ $cadPresent = Test-Path -LiteralPath $CadGeneratorRoot
 $sourceRows = @(
     [pscustomobject]@{ source_id="SRC_CANONICAL"; source_path=$UslOsRoot;                                            source_class="CANONICAL_ROOT";                       access_status="PRESENT";                in_phase1_inventory="YES"; notes="Canonical operating root; Phase 1 inventory target." }
     [pscustomobject]@{ source_id="SRC_ONEDRIVE";  source_path=(Split-Path -Parent $UslOsRoot);                       source_class="LOCAL_ONEDRIVE_SOURCE";                access_status="PRESENT";                in_phase1_inventory="PARTIAL"; notes="OneDrive\Documents parent; overlay candidates outside canonical." }
-    [pscustomobject]@{ source_id="SRC_DESKTOP";   source_path=(Join-Path $env:USERPROFILE "OneDrive\Desktop");        source_class="LOCAL_DESKTOP_SOURCE";                 access_status=(if (Test-Path -LiteralPath (Join-Path $env:USERPROFILE "OneDrive\Desktop")) {"PRESENT"} else {"REVIEW_REQUIRED"}); in_phase1_inventory="NO"; notes="Desktop overlay source; scan in Phase 1B requirements." }
-    [pscustomobject]@{ source_id="SRC_DOCUMENTS"; source_path=(Join-Path $env:USERPROFILE "Documents");               source_class="LOCAL_DOCUMENTS_SOURCE";               access_status=(if (Test-Path -LiteralPath (Join-Path $env:USERPROFILE "Documents")) {"PRESENT"} else {"REVIEW_REQUIRED"}); in_phase1_inventory="NO"; notes="Local Documents (non-OneDrive) overlay source." }
-    [pscustomobject]@{ source_id="SRC_GDRIVE";    source_path=(if ($driveLocalPath) {$driveLocalPath} else {"UNKNOWN"}); source_class="GOOGLE_DRIVE_PENDING_OR_LOCAL_SYNC"; access_status=$driveStatus;            in_phase1_inventory="NO"; notes="Index only if locally synced; else PENDING_SOURCE_ACCESS." }
+    [pscustomobject]@{ source_id="SRC_DESKTOP";   source_path=(Join-Path $env:USERPROFILE "OneDrive\Desktop");        source_class="LOCAL_DESKTOP_SOURCE";                 access_status=$desktopStatus; in_phase1_inventory="NO"; notes="Desktop overlay source; scan in Phase 1B requirements." }
+    [pscustomobject]@{ source_id="SRC_DOCUMENTS"; source_path=(Join-Path $env:USERPROFILE "Documents");               source_class="LOCAL_DOCUMENTS_SOURCE";               access_status=$documentsStatus; in_phase1_inventory="NO"; notes="Local Documents (non-OneDrive) overlay source." }
+    [pscustomobject]@{ source_id="SRC_GDRIVE";    source_path=$gdrivePathValue; source_class="GOOGLE_DRIVE_PENDING_OR_LOCAL_SYNC"; access_status=$driveStatus;            in_phase1_inventory="NO"; notes="Index only if locally synced; else PENDING_SOURCE_ACCESS." }
     [pscustomobject]@{ source_id="SRC_CHATGPT";   source_path=(Join-Path $archiveArea "ChatGPT");                     source_class="CHATGPT_SURFACE_ARCHIVE";              access_status="MANAGED_ARCHIVE_NO_REINVENTORY"; in_phase1_inventory="ARCHIVE"; notes="Existing managed archive area; do not re-inventory as a new source." }
     [pscustomobject]@{ source_id="SRC_CLAUDE";    source_path=(Join-Path $archiveArea "Claude");                      source_class="CLAUDE_SURFACE_ARCHIVE";               access_status="MANAGED_ARCHIVE_NO_REINVENTORY"; in_phase1_inventory="ARCHIVE"; notes="Includes Claude and Claude_Code; managed archive area." }
     [pscustomobject]@{ source_id="SRC_CODEX";     source_path=(Join-Path $archiveArea "Codex");                       source_class="CODEX_SURFACE_ARCHIVE";                access_status="MANAGED_ARCHIVE_NO_REINVENTORY"; in_phase1_inventory="ARCHIVE"; notes="Managed archive area." }
-    [pscustomobject]@{ source_id="SRC_CAD";       source_path=$CadGeneratorRoot;                                      source_class="CAD_GENERATOR_INDEX_ONLY";             access_status=(if ($cadPresent) {"PRESENT_INDEX_ONLY"} else {"REVIEW_REQUIRED"}); in_phase1_inventory="NO"; notes="SEPARATE. Index-link only; never merge or inventory as a source." }
+    [pscustomobject]@{ source_id="SRC_CAD";       source_path=$CadGeneratorRoot;                                      source_class="CAD_GENERATOR_INDEX_ONLY";             access_status=$cadStatus; in_phase1_inventory="NO"; notes="SEPARATE. Index-link only; never merge or inventory as a source." }
     [pscustomobject]@{ source_id="SRC_UNKNOWN";   source_path="UNKNOWN";                                              source_class="UNKNOWN_REVIEW_REQUIRED";              access_status="REVIEW_REQUIRED";        in_phase1_inventory="NO"; notes="Placeholder for any source discovered later needing human review." }
 )
 # Apply redaction to emitted source paths.
