@@ -10,6 +10,7 @@ AI Context Bus (master operating model):
 
 Operating references:
 - `agent-conversation-archive.md` - consolidate local ChatGPT/Codex/Claude/Claude Code exports and handoffs into the USL AI Operating System archive (`tools/consolidate-agent-conversations.ps1`).
+- `usl-os-phase1b-overlay.md` - USL OS consolidation Phase 1B cross-source inventory overlay, SAGE doctrine, read-only with destructive gate locked (`tools/usl-phase1b-cross-source-overlay.ps1`).
 - `google-sheets-sync.md` - phone-to-desktop Google Sheets / Apps Script bridge.
 - `manual-csv-sync.md` - manual CSV sync workflow.
 - `github-pages-deployment.md` - GitHub Pages deployment notes.
