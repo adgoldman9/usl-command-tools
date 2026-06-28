@@ -9,6 +9,7 @@ AI Context Bus (master operating model):
 - `claude-app-sync.md` - Claude mobile↔desktop sync (Claude-specific appendix to the bus).
 
 Operating references:
+- `agent-conversation-archive.md` - consolidate local ChatGPT/Codex/Claude/Claude Code exports and handoffs into the USL AI Operating System archive (`tools/consolidate-agent-conversations.ps1`).
 - `google-sheets-sync.md` - phone-to-desktop Google Sheets / Apps Script bridge.
 - `manual-csv-sync.md` - manual CSV sync workflow.
 - `github-pages-deployment.md` - GitHub Pages deployment notes.

@@ -12,6 +12,7 @@ for structured state). `scripts/build_context_snapshot.py` includes this file in
 | 4 | GCC SharePoint/OneDrive remediation plan | Pending | — | External sharing remediation |
 | 5 | LLM provider abstraction design | Planned | — | Vendor-agnostic provider layer |
 | 6 | Cerebras live integration | Parked | — | Parked until prioritized |
+| 7 | Agent conversation archive consolidation | Tool ready / run pending | — | `tools/consolidate-agent-conversations.ps1`; must run on the Windows USL OS machine |
 
 ## Notes
 
