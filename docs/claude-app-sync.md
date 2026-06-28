@@ -1,4 +1,12 @@
-# Claude Mobile → Desktop Sync & Access
+# Claude Mobile → Desktop Sync & Access (Appendix)
+
+> **Scope:** This is a **Claude-specific appendix**, not the master USL solution.
+> Claude's native sync only moves data *between Claude apps* — it is not a
+> cross-vendor memory layer. The master solution for syncing usable context
+> across Claude, ChatGPT, Codex, GitHub, Drive, and local systems is the
+> **USL AI Context Bus** — see [`ai-context-bus.md`](ai-context-bus.md). Read that
+> first. Use this appendix only for the narrow question of moving data between the
+> Claude mobile and Claude desktop apps.
 
 How to sync and access **saved memory, chats, files, Cowork sessions, and local
 files** between the Claude mobile app and the Claude desktop app.
@@ -6,6 +14,11 @@ files** between the Claude mobile app and the Claude desktop app.
 This is an operating reference, not a USL browser tool. It explains what Claude
 already syncs on its own, how to verify it, and how to close the one real gap
 (local files) using the Google Drive layer these tools already integrate with.
+
+Remember the cross-vendor limit this appendix lives under: **Claude memory is not
+ChatGPT memory, and ChatGPT memory is not Claude/Codex memory.** None of the sync
+described below crosses vendors. Cross-vendor continuity comes only from the
+repo-backed context files defined in the AI Context Bus.
 
 ## The Short Version
 

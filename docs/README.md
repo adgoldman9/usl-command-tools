@@ -2,8 +2,13 @@
 
 Purpose: repo documentation for deployment, operating instructions, GitHub Pages notes, field references, and handoff templates.
 
+AI Context Bus (master operating model):
+- `ai-context-bus.md` - syncing usable context across Claude, ChatGPT, Codex, GitHub, Drive, and local systems via repo-backed context files.
+- `ai-context-bus-sop.md` - daily / weekly operating SOP.
+- `ai-platform-sync-matrix.md` - per-platform sync matrix.
+- `claude-app-sync.md` - Claude mobile↔desktop sync (Claude-specific appendix to the bus).
+
 Operating references:
-- `claude-app-sync.md` - sync and access saved memory, chats, files, Cowork, and local files between the Claude mobile and desktop apps.
 - `google-sheets-sync.md` - phone-to-desktop Google Sheets / Apps Script bridge.
 - `manual-csv-sync.md` - manual CSV sync workflow.
 - `github-pages-deployment.md` - GitHub Pages deployment notes.
