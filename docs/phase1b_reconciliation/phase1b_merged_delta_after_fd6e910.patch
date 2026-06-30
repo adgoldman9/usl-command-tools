@@ -1,0 +1,94 @@
+diff --git a/tools/usl-phase1b-cross-source-overlay.ps1 b/tools/usl-phase1b-cross-source-overlay.ps1
+index 68d4598..832ee2a 100644
+--- a/tools/usl-phase1b-cross-source-overlay.ps1
++++ b/tools/usl-phase1b-cross-source-overlay.ps1
+@@ -193,6 +193,25 @@ function Write-Doc([string]$name, [string]$body) {
+ 
+ $ts = $now.ToString('o')
+ 
++# Windows PowerShell 5.1 compatibility, continued: precompute strings used in
++# here-string interpolation. Inline if-expressions inside "$(...)" here-string
++# content can fail parsing in 5.1, so report fragments are computed here first.
++$phase1InputLines = ($phase1.GetEnumerator() | ForEach-Object {
++    $status = if (Test-Path -LiteralPath $_.Value) { "FOUND" } else { "MISSING" }
++    "- $($_.Key): $status - $(Protect-Path $_.Value)"
++}) -join "`r`n"
++$countsLines = ($counts.GetEnumerator() | ForEach-Object {
++    "- $($_.Key): $($_.Value)"
++}) -join "`r`n"
++$cadPresenceText = if ($cadPresent) { "PRESENT" } else { "REVIEW_REQUIRED / not found at expected path" }
++$driveLocalText = if ($driveLocal) { " at $(Protect-Path $driveLocalPath)" } else { "" }
++$localSourcePresenceLines = ($sourceRows |
++    Where-Object { $_.source_class -in @("LOCAL_ONEDRIVE_SOURCE","LOCAL_DESKTOP_SOURCE","LOCAL_DOCUMENTS_SOURCE") } |
++    ForEach-Object { "- $($_.source_id): $($_.access_status) - $($_.source_path)" }
++) -join "`r`n"
++$cadCompletionText = if ($cadPresent) { "present" } else { "path review required" }
++$cadHostText = if ($cadPresent) { "PRESENT (index-only)" } else { "REVIEW_REQUIRED" }
++
+ # 1. cross_source_inventory_scope.md
+ $doc1 = @"
+ # Phase 1B — Cross-Source Inventory Scope
+@@ -218,10 +237,10 @@ tracker mutation; destructive cleanup. Google Drive content access unless locall
+ synced.
+ 
+ ## Phase 1 inputs read
+-$(($phase1.GetEnumerator() | ForEach-Object { "- $($_.Key): " + ($(if (Test-Path -LiteralPath $_.Value) {"FOUND"} else {"MISSING"})) + " — " + (Protect-Path $_.Value) }) -join "`r`n")
++$phase1InputLines
+ 
+ ## Phase 1 counts (recomputed where readable, else known values)
+-$(($counts.GetEnumerator() | ForEach-Object { "- $($_.Key): $($_.Value)" }) -join "`r`n")
++$countsLines
+ "@
+ $p1 = Write-Doc "cross_source_inventory_scope.md" $doc1
+ 
+@@ -293,7 +312,7 @@ The CAD generator is a SEPARATE system and is never merged into the USL AI
+ Operating System. This phase produces an index-link plan only.
+ 
+ - CAD generator root: $(Protect-Path $CadGeneratorRoot)
+-- Local presence: $(if ($cadPresent) {"PRESENT"} else {"REVIEW_REQUIRED / not found at expected path"})
++- Local presence: $cadPresenceText
+ - Disposition: CAD_GENERATOR_INDEX_ONLY
+ 
+ ## Plan
+@@ -309,7 +328,7 @@ $p5 = Write-Doc "cad_generator_index_link_plan.md" $doc5
+ $doc6 = @"
+ # Phase 1B — Google Drive Sync Requirements
+ 
+-Detected Google Drive local status: **$driveStatus**$(if ($driveLocal) {" at $(Protect-Path $driveLocalPath)"})
++Detected Google Drive local status: **$driveStatus**$driveLocalText
+ 
+ This phase does not access Google Drive over the network. If Drive is not locally
+ synced, it is documented as PENDING_SOURCE_ACCESS and only a requirements
+@@ -339,7 +358,7 @@ indexed read-only in a later step. This checklist defines safe preconditions.
+ - [ ] Do not open skipped files.
+ 
+ ## Source presence snapshot
+-$(($sourceRows | Where-Object { $_.source_class -in @("LOCAL_ONEDRIVE_SOURCE","LOCAL_DESKTOP_SOURCE","LOCAL_DOCUMENTS_SOURCE") } | ForEach-Object { "- $($_.source_id): $($_.access_status) — $($_.source_path)" }) -join "`r`n")
++$localSourcePresenceLines
+ "@
+ $p7 = Write-Doc "one_drive_local_scan_requirements.md" $doc7
+ 
+@@ -431,12 +450,12 @@ $(($createdList | ForEach-Object { "- " + (Protect-Path $_) }) -join "`r`n")
+ $sourcesMappedCount source rows (see cross_source_source_map.csv).
+ 
+ ## Phase 1 counts carried forward
+-$(($counts.GetEnumerator() | ForEach-Object { "- $($_.Key): $($_.Value)" }) -join "`r`n")
++$countsLines
+ 
+ ## Unresolved access gaps
+ - Google Drive: $driveStatus
+ - Desktop/Documents overlay sources: indexed in a later gated step (requirements documented).
+-- CAD generator: index-only ($(if ($cadPresent) {"present"} else {"path review required"})).
++- CAD generator: index-only ($cadCompletionText).
+ 
+ ## Duplicate / deletion gate status
+ - Destructive cleanup gate: LOCKED (APPROVE_DESTRUCTIVE_CLEANUP_PHASE not acted on).
+@@ -478,7 +497,7 @@ Write-Host "Files read:            $($filesRead.Count) Phase 1 input(s)"
+ Write-Host "Files created:         $($createdList.Count + 2) (incl. report + next-task command)"
+ Write-Host "Sources mapped:        $sourcesMappedCount"
+ Write-Host "Google Drive status:   $driveStatus"
+-Write-Host "CAD generator:         $(if ($cadPresent) {'PRESENT (index-only)'} else {'REVIEW_REQUIRED'})"
++Write-Host "CAD generator:         $cadHostText"
+ Write-Host "Duplicate/deletion gate: LOCKED (APPROVE_DESTRUCTIVE_CLEANUP_PHASE required)"
+ Write-Host ""
+ Write-Host "No deletions, moves, copies of sources, uploads, external actions, or tracker mutations were performed." -ForegroundColor Green

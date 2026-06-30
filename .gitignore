@@ -1,2 +1,3 @@
 __pycache__/
 *.pyc
+/phase1b_run.log
