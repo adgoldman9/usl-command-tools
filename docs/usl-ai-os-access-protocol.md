@@ -25,6 +25,28 @@ Do not stage `phase1b_run.log`.
 
 PR #2 remains draft unless Andrew explicitly approves otherwise.
 
+## Execution Surface Routing Rule
+
+Choose the right surface before starting a task:
+
+- **Cloud / container Claude or Codex** may only perform **repo-readable work**:
+  docs, scripts, diffs, PR review, and artifact verification after files are pushed
+  or pasted. It must not touch the live USL AI OS.
+- **Windows Claude Code or Windows Codex** must be used for any task touching:
+  - `C:\Users\motor\OneDrive\Documents\USL_AI_Operating_System`
+  - CRM CSVs
+  - Phase folders
+  - OneDrive-local files
+  - local PowerShell execution
+  - local report writes
+- If the session **cannot access `C:\Users\motor`**, it must **stop**, state the
+  limitation, and produce a handoff prompt. It must **not fabricate** Windows file
+  reads, backups, writes, or verification results.
+- Windows commits should be **pushed promptly after approval**; cloud sessions
+  should sync using `git fetch` and **fast-forward only** (no divergent local
+  commits, no reset, no rebase, no discard).
+- Protected actions remain blocked unless Andrew explicitly approves.
+
 ## Mission
 
 Operate across the USL AI OS using local files as source of truth. Read, summarize, index, and create handoff/update artifacts so ChatGPT, Claude Code, Codex, and Andrew stay aligned across USL workstreams.

@@ -1,3 +1,8 @@
 __pycache__/
+scripts/__pycache__/
 *.pyc
-/phase1b_run.log
+phase1b_run.log
+*.PREVIEW.md
+backups/
+**/backups/
+*.backup_before_usl_protocol
