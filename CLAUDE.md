@@ -35,3 +35,8 @@ instructions, then adds Claude-specific notes.
 - Claude-internal sync (appendix): `docs/claude-app-sync.md`
 - Context files: `context/`
 - Context tooling: `scripts/`, `tools/`
+
+## USL AI OS protocol
+
+Use docs/usl-ai-os-access-protocol.md as the standing access, CRM, communication, and safety protocol for this repo.
+
