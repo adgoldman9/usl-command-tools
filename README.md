@@ -13,7 +13,22 @@ The repo is designed for simple local-first tools that can be opened in a browse
 - `usl-command-dashboard/` - Daily USL command dashboard, mobile capture, and status reporting.
 - `mobile-capture-inbox/` - Mobile-first capture inbox with CSV and optional Google Sheets sync.
 - `apps-script/` - Google Apps Script backend templates for optional shared sync.
-- `docs/` - Deployment notes, operating docs, and GitHub Pages instructions.
+- `context/` - USL AI Context Bus: canonical operating memory, tasks, file index, and session handoffs read by every AI platform.
+- `scripts/`, `tools/` - Context Bus tooling (snapshot builder, validator, Windows export helper).
+- `docs/` - Deployment notes, operating docs, AI Context Bus + Claude app sync references, and GitHub Pages instructions.
+
+## AI Context Bus
+
+USL keeps **one repo-backed, human-readable operating memory** that every AI tool
+(Claude, ChatGPT, Codex, mobile, desktop) reads from and writes back to, instead of
+relying on each vendor's native chat memory (which does not cross vendors). Start
+here:
+
+- `docs/ai-context-bus.md` - architecture and source-of-truth hierarchy.
+- `docs/ai-context-bus-sop.md` - daily / weekly operating SOP.
+- `docs/ai-platform-sync-matrix.md` - per-platform sync matrix.
+- `AGENTS.md` / `CLAUDE.md` - shared and Claude-specific agent instructions.
+- `docs/claude-app-sync.md` - Claude mobile↔desktop sync (appendix, not the master solution).
 
 ## Local Use
 
