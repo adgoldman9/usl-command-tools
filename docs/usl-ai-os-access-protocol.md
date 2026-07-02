@@ -27,6 +27,13 @@ PR #2 remains draft unless Andrew explicitly approves otherwise.
 
 ## Execution Surface Routing Rule
 
+**Windows Claude Code is the default daily-driver surface** for USL projects,
+workflows, data work, and app building — see
+[`windows-claude-code-daily-driver.md`](windows-claude-code-daily-driver.md)
+for one-time setup and the per-session checklist. Cloud/container sessions are
+the fallback for repo-only work when the Windows machine isn't available, not
+a substitute.
+
 Choose the right surface before starting a task:
 
 - **Cloud / container Claude or Codex** may only perform **repo-readable work**:

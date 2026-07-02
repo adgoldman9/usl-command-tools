@@ -29,6 +29,7 @@ here:
 - `docs/ai-platform-sync-matrix.md` - per-platform sync matrix.
 - `AGENTS.md` / `CLAUDE.md` - shared and Claude-specific agent instructions.
 - `docs/claude-app-sync.md` - Claude mobile↔desktop sync (appendix, not the master solution).
+- `docs/windows-claude-code-daily-driver.md` - default-surface setup: Windows Claude Code for Windows/PowerShell/CRM/build work; cloud sessions are the repo-only fallback.
 
 ## Local Use
 

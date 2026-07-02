@@ -9,6 +9,12 @@ It sits on top of the **USL AI Context Bus** — see
 [`docs/ai-context-bus.md`](docs/ai-context-bus.md). The bus is the operating model;
 this file is the agent contract within it.
 
+**Default surface:** Windows Claude Code (running locally on `motor`'s machine) is
+the default daily driver for USL projects, workflows, data, and app building —
+see [`docs/windows-claude-code-daily-driver.md`](docs/windows-claude-code-daily-driver.md).
+Cloud/container sessions are the repo-only fallback; see the Execution Surface
+Routing Rule in [`docs/usl-ai-os-access-protocol.md`](docs/usl-ai-os-access-protocol.md).
+
 ## Core Operating Rules
 
 1. **Context-first.** Before answering or building, read the repo context:

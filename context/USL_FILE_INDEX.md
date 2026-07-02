@@ -17,6 +17,7 @@ Controlled items are never safe for AI upload.
 | `AGENTS.md` / `CLAUDE.md` | Repo | Shared + Claude agent instructions | Internal | Yes (instructions) | Yes | — |
 | `.chatgpt/` `.codex/` | Repo | Platform instructions | Internal | Yes (instructions) | Yes | — |
 | `docs/` | Repo | Operating docs / SOPs | Internal | Yes (docs) | Yes | Bus + tool docs |
+| `docs/windows-claude-code-daily-driver.md` | Repo | Default-surface setup: Windows Claude Code daily driver | Internal | Yes (doc) | Yes | Cloud sessions are repo-only fallback |
 | `scripts/`, `tools/` | Repo | Context-bus tooling | Internal | Yes (tooling) | Yes | Stdlib/PowerShell only |
 | Local CRM database | Local CRM | Structured project state | Sensitive | Yes (structured) | No | Do not mutate from the bus |
 | Local CAD repo | Local CAD | CAD / drawings | Controlled | Execution system | No | Controlled; never upload |

@@ -38,6 +38,10 @@ throughout the day; desktop is used for deeper review and file work.
 
 ## AI-platform operating rules
 
+- **Windows Claude Code is the default daily-driver surface** for USL projects,
+  workflows, data, and app building — see
+  `docs/windows-claude-code-daily-driver.md`. Cloud/container sessions are the
+  repo-only fallback per the Execution Surface Routing Rule.
 - Native chat memory does not cross vendors. Claude memory is not ChatGPT memory;
   ChatGPT memory is not Claude/Codex memory.
 - Mobile app chats are not the system of record.
