@@ -22,7 +22,7 @@ for structured state). `scripts/build_context_snapshot.py` includes this file in
 | 14 | LLM provider abstraction layer | Parked — no concrete integration point yet | — | No code in this repo calls an LLM API directly; building an abstraction now would be speculative. Revisit once a specific tool needs it |
 | 15 | Windows Claude Code cleanup (duplicate install, update) | Pending on Windows | — | `/doctor` found both npm-global and native installs; recommend removing one and running `claude update` |
 | 16 | Weekly SOP automation via Windows Task Scheduler | Recommended / pending on Windows | — | Schedule `tools\usl-status.ps1` + `tools\usl-local-access-verification.ps1` per `docs/ai-context-bus-sop.md`; Claude Code cron is session-scoped (7-day max), not suitable — use Task Scheduler |
-| 17 | Calendar auto-reminders from CRM follow_up_date | Not started — needs explicit decision | — | Google Calendar MCP connector is live; crosses the "no automation without explicit approval" line and needs a deliberate yes before building |
+| 17 | Calendar auto-reminders from CRM follow_up_date | Built / first live run pending on Windows | — | Approved. `/crm-save` now creates a follow-up event as its last step; `/crm-calendar-sync` batch-syncs existing rows (dry-run list first, then confirm). Confirmed this session's Calendar connector is `adgoldman9@gmail.com`. Cannot test from cloud — no CRM data accessible here; first real run must happen on Windows |
 
 ## Notes
 

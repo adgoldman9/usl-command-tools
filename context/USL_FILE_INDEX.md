@@ -21,7 +21,8 @@ Controlled items are never safe for AI upload.
 | `scripts/`, `tools/` | Repo | Context-bus tooling | Internal | Yes (tooling) | Yes | Stdlib/PowerShell only |
 | `.github/workflows/context-bus-validate.yml` | Repo | CI: rebuild + validate context bus on every PR/push to main | Internal | Yes (CI) | Yes | Read-only checks; no secrets, no deploy |
 | `.claude/settings.json` | Repo | Project permission allowlist (read-only commands) | Internal | Yes (config) | Yes | No deny/ask rules; allow-list only |
-| `.claude/commands/crm-save.md` | Repo | `/crm-save` slash command wrapping the CRM save procedure | Internal | Yes (command) | Yes | Routes to Windows-only execution or a pending-handoff |
+| `.claude/commands/crm-save.md` | Repo | `/crm-save` slash command wrapping the CRM save procedure | Internal | Yes (command) | Yes | Routes to Windows-only execution or a pending-handoff; last step creates a Calendar follow-up event |
+| `.claude/commands/crm-calendar-sync.md` | Repo | `/crm-calendar-sync` — batch-create Calendar events for existing CRM rows with a `follow_up_date` | Internal | Yes (command) | Yes | Dry-run list before writing; Windows-only (needs real CRM data) |
 | Local CRM database | Local CRM | Structured project state | Sensitive | Yes (structured) | No | Do not mutate from the bus |
 | Local CAD repo | Local CAD | CAD / drawings | Controlled | Execution system | No | Controlled; never upload |
 | Google Drive `USL Command Drive/` | Drive | Artifact/large-file store | Mixed | Yes (artifacts) | Cleared artifacts only | Not a memory layer |
