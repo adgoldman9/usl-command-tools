@@ -93,9 +93,36 @@ Do not rely on memory alone when a local source file exists.
 
 ## CRM protocol
 
-When task text contains `@crm` or `add to crm`, save it as a CRM pipeline activity in:
+When task text contains `@crm` or `add to crm` — or an uploaded "CRM save prompt"
+file (the Codex-style `SAVE_<OPPORTUNITY>_TO_CRM_LOCAL_ONLY` pattern) — save it as
+a CRM pipeline activity. This only runs on a surface with real access to:
 
 `C:\Users\motor\OneDrive\Documents\USL_AI_Operating_System\03_Apollo_Outreach\apollo\control`
+
+A cloud/container session cannot execute this — see the Execution Surface Routing
+Rule above. It should instead write a handoff capturing the spec below verbatim
+(see `context/handoffs/2026-07-02-dibc-rfs-26-02-crm-save-pending-windows.md` for
+the reference example) and log it in `USL_ACTIVE_TASKS.md` as pending Windows
+execution.
+
+### Save procedure (Windows-local)
+
+1. **Back up first.** Copy the whole CRM control folder to a timestamped sibling,
+   e.g. `control_backup_YYYYMMDD_HHMMSS`, before touching anything. Never edit a
+   CRM CSV without a fresh backup.
+2. **Append the pipeline activity row** to `crm_pipeline_activity_log.csv` (create
+   it if it doesn't exist) with the fields below.
+3. **Update the agenda/task board** — `apollo_sequence_task_board.csv` — inserting
+   the new item at the priority position given in the task (e.g. right after the
+   top-ranked existing item for a `TOP`-priority save).
+4. **Append an entry to the change log** — `apollo_change_log.csv` — recording the
+   event (e.g. `CRM_OPPORTUNITY_RECORD_SAVED`) and status (e.g.
+   `SAVED_LOCAL_ONLY`).
+5. **Update repo tracking** — mark the corresponding row in
+   `context/USL_ACTIVE_TASKS.md` complete if one exists, and write a completion
+   handoff in `context/handoffs/`.
+6. **Report** using the task's completion label (if given) and the standard
+   handoff summary format (see `AGENTS.md` Handoff Rule).
 
 Use existing CRM files if present:
 
@@ -103,6 +130,7 @@ Use existing CRM files if present:
 - `apollo_company_research_notes.csv`
 - `apollo_sequence_task_board.csv`
 - `apollo_change_log.csv`
+- `crm_pipeline_activity_log.csv`
 
 Before editing CRM files:
 
