@@ -10,6 +10,10 @@
     label only on a full PASS. Does not edit CRM CSVs and never runs the CRM helper
     with -Commit.
 
+    -ExpectedBranch / -ExpectedHead default to empty, meaning branch/HEAD are
+    reported as INFO only (no PASS/FAIL) since the repo moves constantly. Pass
+    explicit values to pin and enforce a specific checkpoint.
+
 .EXAMPLE
     pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\usl-local-access-verification.ps1
 #>
@@ -17,8 +21,8 @@
 param(
     [string]$Repo        = "C:\Users\motor\OneDrive\Desktop\USL_Command_Center\07_Codex_Builds\usl-command-tools",
     [string]$UslRoot     = "C:\Users\motor\OneDrive\Documents\USL_AI_Operating_System",
-    [string]$ExpectedHead = "fa246115f09122d131448b82b67485bf674777a4",
-    [string]$ExpectedBranch = "claude/saved-memory-sync-access-kukbtk"
+    [string]$ExpectedHead = "",
+    [string]$ExpectedBranch = ""
 )
 $ErrorActionPreference = "Continue"
 $ts = (Get-Date).ToString("yyyyMMdd_HHmmss")
@@ -40,8 +44,16 @@ if (Test-Path -LiteralPath $Repo) {
     Push-Location $Repo
     $branch = (git branch --show-current)
     $head = (git rev-parse HEAD)
-    Add-L ("- branch: $branch [{0}]" -f (Mark ($branch -eq $ExpectedBranch)))
-    Add-L ("- HEAD: $head [{0}]" -f (Mark ($head -eq $ExpectedHead)))
+    if ($ExpectedBranch) {
+        Add-L ("- branch: $branch [{0}]" -f (Mark ($branch -eq $ExpectedBranch)))
+    } else {
+        Add-L "- branch: $branch [INFO — no expected branch pinned]"
+    }
+    if ($ExpectedHead) {
+        Add-L ("- HEAD: $head [{0}]" -f (Mark ($head -eq $ExpectedHead)))
+    } else {
+        Add-L "- HEAD: $head [INFO — no expected HEAD pinned]"
+    }
     Add-L "- status:"; (git status --short --ignored) | ForEach-Object { Add-L "    $_" }
     Add-L ("- helper usl-crm-pipeline-agenda-refresh.ps1: [{0}]" -f (Mark (Test-Path -LiteralPath (Join-Path $Repo "tools\usl-crm-pipeline-agenda-refresh.ps1"))))
     Pop-Location
@@ -86,7 +98,7 @@ foreach ($key in $keys) {
         if (Test-Path -LiteralPath $p) { $m = Select-String -LiteralPath $p -SimpleMatch -Pattern $key -ErrorAction SilentlyContinue; if ($m) { $count += @($m).Count } }
     }
     $ok = ($count -eq 1); if (-not $ok) { $fail = $true }
-    Add-L ("- {0}: {1} [{2}]" -f $key, $count, (if($ok){"PASS"}else{"FAIL"}))
+    Add-L ("- {0}: {1} [{2}]" -f $key, $count, ($ok ? "PASS" : "FAIL"))
 }
 Add-L ""
 
