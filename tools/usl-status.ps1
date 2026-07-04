@@ -28,7 +28,7 @@ if (Test-Path -LiteralPath $Repo) {
     Write-Host ("  branch: " + (git branch --show-current))
     Write-Host ("  HEAD:   " + (git rev-parse --short HEAD))
     $st = git status --short --ignored
-    Write-Host ("  status: " + (if ($st) { ($st -join " | ") } else { "clean" }))
+    Write-Host ("  status: " + ($st ? ($st -join " | ") : "clean"))
     Write-Host ("  helper usl-crm-pipeline-agenda-refresh.ps1: " + (YN (Test-Path -LiteralPath (Join-Path $Repo "tools\usl-crm-pipeline-agenda-refresh.ps1"))))
     Pop-Location
 } else { Write-Host "  Repo NOT FOUND" }
