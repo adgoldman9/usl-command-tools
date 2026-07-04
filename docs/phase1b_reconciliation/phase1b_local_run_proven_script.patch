@@ -1,0 +1,121 @@
+diff --git a/tools/usl-phase1b-cross-source-overlay.ps1 b/tools/usl-phase1b-cross-source-overlay.ps1
+index 3935de8..40c2e88 100644
+--- a/tools/usl-phase1b-cross-source-overlay.ps1
++++ b/tools/usl-phase1b-cross-source-overlay.ps1
+@@ -133,6 +133,12 @@ foreach ($d in $driveCandidates) {
+ $driveStatus = if ($driveLocal) { "LOCAL_SYNC_PRESENT" } else { "PENDING_SOURCE_ACCESS" }
+ 
+ $cadPresent = Test-Path -LiteralPath $CadGeneratorRoot
++$oneDriveDesktopPath = Join-Path $env:USERPROFILE "OneDrive\Desktop"
++$localDocumentsPath = Join-Path $env:USERPROFILE "Documents"
++$oneDriveDesktopStatus = if (Test-Path -LiteralPath $oneDriveDesktopPath) { "PRESENT" } else { "REVIEW_REQUIRED" }
++$localDocumentsStatus = if (Test-Path -LiteralPath $localDocumentsPath) { "PRESENT" } else { "REVIEW_REQUIRED" }
++$googleDriveSourcePath = if ($driveLocalPath) { $driveLocalPath } else { "UNKNOWN" }
++$cadSourceStatus = if ($cadPresent) { "PRESENT_INDEX_ONLY" } else { "REVIEW_REQUIRED" }
+ 
+ # ---------------------------------------------------------------------------
+ # Source map (one row per SOURCE — sources are not re-inventoried here)
+@@ -141,13 +147,13 @@ $cadPresent = Test-Path -LiteralPath $CadGeneratorRoot
+ $sourceRows = @(
+     [pscustomobject]@{ source_id="SRC_CANONICAL"; source_path=$UslOsRoot;                                            source_class="CANONICAL_ROOT";                       access_status="PRESENT";                in_phase1_inventory="YES"; notes="Canonical operating root; Phase 1 inventory target." }
+     [pscustomobject]@{ source_id="SRC_ONEDRIVE";  source_path=(Split-Path -Parent $UslOsRoot);                       source_class="LOCAL_ONEDRIVE_SOURCE";                access_status="PRESENT";                in_phase1_inventory="PARTIAL"; notes="OneDrive\Documents parent; overlay candidates outside canonical." }
+-    [pscustomobject]@{ source_id="SRC_DESKTOP";   source_path=(Join-Path $env:USERPROFILE "OneDrive\Desktop");        source_class="LOCAL_DESKTOP_SOURCE";                 access_status=(if (Test-Path -LiteralPath (Join-Path $env:USERPROFILE "OneDrive\Desktop")) {"PRESENT"} else {"REVIEW_REQUIRED"}); in_phase1_inventory="NO"; notes="Desktop overlay source; scan in Phase 1B requirements." }
+-    [pscustomobject]@{ source_id="SRC_DOCUMENTS"; source_path=(Join-Path $env:USERPROFILE "Documents");               source_class="LOCAL_DOCUMENTS_SOURCE";               access_status=(if (Test-Path -LiteralPath (Join-Path $env:USERPROFILE "Documents")) {"PRESENT"} else {"REVIEW_REQUIRED"}); in_phase1_inventory="NO"; notes="Local Documents (non-OneDrive) overlay source." }
+-    [pscustomobject]@{ source_id="SRC_GDRIVE";    source_path=(if ($driveLocalPath) {$driveLocalPath} else {"UNKNOWN"}); source_class="GOOGLE_DRIVE_PENDING_OR_LOCAL_SYNC"; access_status=$driveStatus;            in_phase1_inventory="NO"; notes="Index only if locally synced; else PENDING_SOURCE_ACCESS." }
++    [pscustomobject]@{ source_id="SRC_DESKTOP";   source_path=$oneDriveDesktopPath;                                   source_class="LOCAL_DESKTOP_SOURCE";                 access_status=$oneDriveDesktopStatus; in_phase1_inventory="NO"; notes="Desktop overlay source; scan in Phase 1B requirements." }
++    [pscustomobject]@{ source_id="SRC_DOCUMENTS"; source_path=$localDocumentsPath;                                    source_class="LOCAL_DOCUMENTS_SOURCE";               access_status=$localDocumentsStatus; in_phase1_inventory="NO"; notes="Local Documents (non-OneDrive) overlay source." }
++    [pscustomobject]@{ source_id="SRC_GDRIVE";    source_path=$googleDriveSourcePath;                                 source_class="GOOGLE_DRIVE_PENDING_OR_LOCAL_SYNC"; access_status=$driveStatus;            in_phase1_inventory="NO"; notes="Index only if locally synced; else PENDING_SOURCE_ACCESS." }
+     [pscustomobject]@{ source_id="SRC_CHATGPT";   source_path=(Join-Path $archiveArea "ChatGPT");                     source_class="CHATGPT_SURFACE_ARCHIVE";              access_status="MANAGED_ARCHIVE_NO_REINVENTORY"; in_phase1_inventory="ARCHIVE"; notes="Existing managed archive area; do not re-inventory as a new source." }
+     [pscustomobject]@{ source_id="SRC_CLAUDE";    source_path=(Join-Path $archiveArea "Claude");                      source_class="CLAUDE_SURFACE_ARCHIVE";               access_status="MANAGED_ARCHIVE_NO_REINVENTORY"; in_phase1_inventory="ARCHIVE"; notes="Includes Claude and Claude_Code; managed archive area." }
+     [pscustomobject]@{ source_id="SRC_CODEX";     source_path=(Join-Path $archiveArea "Codex");                       source_class="CODEX_SURFACE_ARCHIVE";                access_status="MANAGED_ARCHIVE_NO_REINVENTORY"; in_phase1_inventory="ARCHIVE"; notes="Managed archive area." }
+-    [pscustomobject]@{ source_id="SRC_CAD";       source_path=$CadGeneratorRoot;                                      source_class="CAD_GENERATOR_INDEX_ONLY";             access_status=(if ($cadPresent) {"PRESENT_INDEX_ONLY"} else {"REVIEW_REQUIRED"}); in_phase1_inventory="NO"; notes="SEPARATE. Index-link only; never merge or inventory as a source." }
++    [pscustomobject]@{ source_id="SRC_CAD";       source_path=$CadGeneratorRoot;                                      source_class="CAD_GENERATOR_INDEX_ONLY";             access_status=$cadSourceStatus; in_phase1_inventory="NO"; notes="SEPARATE. Index-link only; never merge or inventory as a source." }
+     [pscustomobject]@{ source_id="SRC_UNKNOWN";   source_path="UNKNOWN";                                              source_class="UNKNOWN_REVIEW_REQUIRED";              access_status="REVIEW_REQUIRED";        in_phase1_inventory="NO"; notes="Placeholder for any source discovered later needing human review." }
+ )
+ # Apply redaction to emitted source paths.
+@@ -183,6 +189,21 @@ function Write-Doc([string]$name, [string]$body) {
+ }
+ 
+ $ts = $now.ToString('o')
++$phase1InputLines = ($phase1.GetEnumerator() | ForEach-Object {
++    $status = if (Test-Path -LiteralPath $_.Value) { "FOUND" } else { "MISSING" }
++    "- $($_.Key): $status - $(Protect-Path $_.Value)"
++}) -join "`r`n"
++$countsLines = ($counts.GetEnumerator() | ForEach-Object {
++    "- $($_.Key): $($_.Value)"
++}) -join "`r`n"
++$cadPresenceText = if ($cadPresent) { "PRESENT" } else { "REVIEW_REQUIRED / not found at expected path" }
++$driveLocalText = if ($driveLocal) { " at $(Protect-Path $driveLocalPath)" } else { "" }
++$localSourcePresenceLines = ($sourceRows |
++    Where-Object { $_.source_class -in @("LOCAL_ONEDRIVE_SOURCE","LOCAL_DESKTOP_SOURCE","LOCAL_DOCUMENTS_SOURCE") } |
++    ForEach-Object { "- $($_.source_id): $($_.access_status) - $($_.source_path)" }
++) -join "`r`n"
++$cadCompletionText = if ($cadPresent) { "present" } else { "path review required" }
++$cadHostText = if ($cadPresent) { "PRESENT (index-only)" } else { "REVIEW_REQUIRED" }
+ 
+ # 1. cross_source_inventory_scope.md
+ $doc1 = @"
+@@ -209,10 +230,10 @@ tracker mutation; destructive cleanup. Google Drive content access unless locall
+ synced.
+ 
+ ## Phase 1 inputs read
+-$(($phase1.GetEnumerator() | ForEach-Object { "- $($_.Key): " + ($(if (Test-Path -LiteralPath $_.Value) {"FOUND"} else {"MISSING"})) + " — " + (Protect-Path $_.Value) }) -join "`r`n")
++$phase1InputLines
+ 
+ ## Phase 1 counts (recomputed where readable, else known values)
+-$(($counts.GetEnumerator() | ForEach-Object { "- $($_.Key): $($_.Value)" }) -join "`r`n")
++$countsLines
+ "@
+ $p1 = Write-Doc "cross_source_inventory_scope.md" $doc1
+ 
+@@ -284,7 +305,7 @@ The CAD generator is a SEPARATE system and is never merged into the USL AI
+ Operating System. This phase produces an index-link plan only.
+ 
+ - CAD generator root: $(Protect-Path $CadGeneratorRoot)
+-- Local presence: $(if ($cadPresent) {"PRESENT"} else {"REVIEW_REQUIRED / not found at expected path"})
++- Local presence: $cadPresenceText
+ - Disposition: CAD_GENERATOR_INDEX_ONLY
+ 
+ ## Plan
+@@ -300,7 +321,7 @@ $p5 = Write-Doc "cad_generator_index_link_plan.md" $doc5
+ $doc6 = @"
+ # Phase 1B — Google Drive Sync Requirements
+ 
+-Detected Google Drive local status: **$driveStatus**$(if ($driveLocal) {" at $(Protect-Path $driveLocalPath)"})
++Detected Google Drive local status: **$driveStatus**$driveLocalText
+ 
+ This phase does not access Google Drive over the network. If Drive is not locally
+ synced, it is documented as PENDING_SOURCE_ACCESS and only a requirements
+@@ -330,7 +351,7 @@ indexed read-only in a later step. This checklist defines safe preconditions.
+ - [ ] Do not open skipped files.
+ 
+ ## Source presence snapshot
+-$(($sourceRows | Where-Object { $_.source_class -in @("LOCAL_ONEDRIVE_SOURCE","LOCAL_DESKTOP_SOURCE","LOCAL_DOCUMENTS_SOURCE") } | ForEach-Object { "- $($_.source_id): $($_.access_status) — $($_.source_path)" }) -join "`r`n")
++$localSourcePresenceLines
+ "@
+ $p7 = Write-Doc "one_drive_local_scan_requirements.md" $doc7
+ 
+@@ -422,12 +443,12 @@ $(($createdList | ForEach-Object { "- " + (Protect-Path $_) }) -join "`r`n")
+ $sourcesMappedCount source rows (see cross_source_source_map.csv).
+ 
+ ## Phase 1 counts carried forward
+-$(($counts.GetEnumerator() | ForEach-Object { "- $($_.Key): $($_.Value)" }) -join "`r`n")
++$countsLines
+ 
+ ## Unresolved access gaps
+ - Google Drive: $driveStatus
+ - Desktop/Documents overlay sources: indexed in a later gated step (requirements documented).
+-- CAD generator: index-only ($(if ($cadPresent) {"present"} else {"path review required"})).
++- CAD generator: index-only ($cadCompletionText).
+ 
+ ## Duplicate / deletion gate status
+ - Destructive cleanup gate: LOCKED (APPROVE_DESTRUCTIVE_CLEANUP_PHASE not acted on).
+@@ -469,7 +490,7 @@ Write-Host "Files read:            $($filesRead.Count) Phase 1 input(s)"
+ Write-Host "Files created:         $($createdList.Count + 2) (incl. report + next-task command)"
+ Write-Host "Sources mapped:        $sourcesMappedCount"
+ Write-Host "Google Drive status:   $driveStatus"
+-Write-Host "CAD generator:         $(if ($cadPresent) {'PRESENT (index-only)'} else {'REVIEW_REQUIRED'})"
++Write-Host "CAD generator:         $cadHostText"
+ Write-Host "Duplicate/deletion gate: LOCKED (APPROVE_DESTRUCTIVE_CLEANUP_PHASE required)"
+ Write-Host ""
+ Write-Host "No deletions, moves, copies of sources, uploads, external actions, or tracker mutations were performed." -ForegroundColor Green
