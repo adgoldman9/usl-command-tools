@@ -10,6 +10,44 @@ Cloud/container Claude Code sessions (Claude Code on the web, Cowork) remain
 [`usl-ai-os-access-protocol.md`](usl-ai-os-access-protocol.md). They cannot
 substitute for this setup; they hand off to it.
 
+The goal is operating parity with Windows Codex for local USL task
+execution: same approved workspace paths, same repo, same CRM control
+files, same PowerShell 7 workflow, same approval gates. Parity means equal
+**capability**, not loosened **rules** — every safety rule below still
+applies to Claude Code exactly as it applies to Codex.
+
+## Approved local capabilities
+
+On the Windows machine, at the repo/USL AI OS paths above, Claude Code may:
+
+- Read/write approved USL project files under `C:\Users\motor\OneDrive\...`
+- Read/write the `usl-command-tools` repo
+- Run PowerShell 7 commands locally
+- Create Phase folders and reports
+- Update local CRM CSV/task-board files **only when explicitly instructed**
+  (the `@crm` / "add to crm" trigger in `AGENTS.md`)
+- Create timestamped backups before any edit
+- Produce completion labels and audit reports
+
+## Safety rules (unchanged — do not loosen for this setup)
+
+Local capability does not relax any gate. All of the following stay exactly
+as documented in [`usl-ai-os-access-protocol.md`](usl-ai-os-access-protocol.md)
+and `AGENTS.md`:
+
+- No external sends (emails, messages, outbound contact)
+- No Gmail drafts unless explicitly approved
+- No supplier contact
+- No bid submission
+- No quote submission
+- No public links / external sharing
+- No destructive cleanup
+- No deleting, moving, renaming, or archiving source data
+- No push or PR update unless explicitly approved
+- No staging `phase1b_run.log`
+- PR #2 stays draft unless Andrew explicitly approves otherwise
+- Destructive cleanup gate stays `LOCKED`
+
 ## One-time setup (on the Windows machine)
 
 1. **Node.js** — Claude Code requires a current Node LTS. Confirm with
