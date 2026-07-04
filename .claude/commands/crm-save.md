@@ -19,3 +19,21 @@ First, confirm the current surface:
 Never submit anything, contact anyone, or mark anything release-ready as part
 of a CRM save — this command only ever produces a local pipeline-activity
 record.
+
+## Calendar follow-up (only after the local save above is complete)
+
+If the saved record has a `follow_up_date` and a Google Calendar connector is
+available in this session:
+
+1. Check for an existing event first (search the primary calendar for the
+   `task_key` / opportunity ID) to avoid creating a duplicate on a re-run.
+2. If none exists, create one all-day event on the primary calendar
+   (`adgoldman9@gmail.com`) titled `Follow up: <opportunity_or_solicitation>`,
+   dated on `follow_up_date`, with the `task_key`, `activity_type`, and a link
+   back to the CRM row in the description. Do not add other attendees and do
+   not send notifications to anyone else.
+3. Report the event created (or skipped, if one already existed) as part of
+   the save summary.
+
+If no Calendar connector is available in this session, skip this step
+entirely and say so in the report — do not fail the CRM save over it.
